@@ -9,7 +9,7 @@ import random
 import torch
 
 from torch.utils.data import DataLoader
-from transformers import AdamW
+from torch.optim import AdamW
 
 from model import ImplicitModel
 from configuration_model import ImplicitModelConfig

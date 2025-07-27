@@ -16,6 +16,16 @@ from configuration_model import ImplicitModelConfig
 from data import CoTDataset, CoTDataCollator, extract_answer
 from utils import get_sep_position, batch_ids, save_model
 
+from peft import get_peft_model, LoraConfig, TaskType
+
+peft_config = LoraConfig(
+    r=8,
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj"],  # can include: "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj" , but its faster w/o
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM
+)
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
@@ -186,6 +196,10 @@ def main():
     else:
         print (f'Loading from {args.from_pretrained}')
         model = ImplicitModel.from_pretrained(args.from_pretrained).to(device).to(ptdtype)
+
+    model.base_model = get_peft_model(model.base_model, peft_config)
+    model.print_trainable_parameters()
+
     if 'gpt2' in args.model:
         old_length = model.base_model.transformer.wpe.weight.shape[0]
         if args.truncation > old_length and args.from_pretrained is None:

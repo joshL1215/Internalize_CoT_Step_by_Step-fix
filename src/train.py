@@ -197,7 +197,7 @@ def main():
         print (f'Loading from {args.from_pretrained}')
         model = ImplicitModel.from_pretrained(args.from_pretrained).to(device).to(ptdtype)
 
-    model.base_model = get_peft_model(model.base_model, peft_config)
+    model = get_peft_model(model.base_model, peft_config)
     model.print_trainable_parameters()
 
     if 'gpt2' in args.model:
